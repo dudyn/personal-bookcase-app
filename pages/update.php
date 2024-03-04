@@ -1,5 +1,6 @@
 <?php
 include '../functions/connect.php';
+include '../functions/validation.php';
 include 'nav.php';
 
 $id = $_GET['update_id'];
@@ -23,23 +24,47 @@ if (isset($_POST['submit'])) {
     $dateRead = $_POST['dateread'] ? $_POST['dateread'] : null;
     $rating = $_POST['rating'];
 
-    $sql = "
-    UPDATE `books` SET
-    title = '$title',
-    author = '$author',
-    pages_read_number = '$pagesReadNumber',
-    number_of_pages = '$numberOfPages',
-    date_read = " . ($dateRead ? "'$dateRead'" : 'NULL') . ",
-    rating = '$rating'
-    WHERE book_id = $id
-    ";
-    $result = mysqli_query($con, $sql);
+    $errorMessage = '';
+    if (strlen($title)<3){
+        $errorMessage = $errorMessage . "Title's length is too short. <br>";
+    }
+    if (strlen($author)<3){
+        $errorMessage = $errorMessage . "Author's length is too short. <br>";
+    }
+    if (($pagesReadNumber > $numberOfPages || $pagesReadNumber < 0) && $pagesReadNumber){
+        $errorMessage = $errorMessage . "Incorrect pages read number. <br>";
+    }
+    if (strlen($numberOfPages)<0 || $numberOfPages<=0){
+        $errorMessage = $errorMessage . "Incorrect number of pages value. <br>";
+    }
+    if (($rating > 5 || $rating < 0) && $rating){
+        $errorMessage = $errorMessage . "Incorrect rating value. <br>";
+    }
+    if (((strtotime($dateRead)>strtotime(date("Y-m-d"))) && $dateRead) || ($pagesReadNumber && $dateRead && $pagesReadNumber !== $numberOfPages)){
+        $errorMessage = $errorMessage . "Incorrect date read.";
+    }
+    if ($errorMessage !== ''){
+        showDangerMessage($errorMessage);
+    }
+    else{
+        $sql = "
+        UPDATE `books` SET
+        title = '$title',
+        author = '$author',
+        pages_read_number = '$pagesReadNumber',
+        number_of_pages = '$numberOfPages',
+        date_read = " . ($dateRead ? "'$dateRead'" : 'NULL') . ",
+        rating = '$rating'
+        WHERE book_id = $id
+        ";
+        $result = mysqli_query($con, $sql);
 
-    if ($result) {
-        //echo "Data updated successfully!";
-        header('location:/');
-    } else {
-        die(mysqli_error($con));
+        if ($result) {
+            //echo "Data inserted successfully!";
+            header('location:/');
+        } else {
+            die(mysqli_error($con));
+        }
     }
 }
 
@@ -85,11 +110,12 @@ if (isset($_POST['submit'])) {
                 <input class="form-control" type="date" placeholder="Enter read date" name="dateread" autocomplete="off" value="<?php echo $dateRead; ?>">
             </div>
             <div class="mb-3">
-                <label class="form-label">Rating</label>
+                <label class="form-label">Rating (0-5)</label>
                 <input class="form-control" type="number" placeholder="Enter rating for the book (0-5)" name="rating" autocomplete="off" value="<?php echo $rating; ?>">
             </div>
             <button name="submit" type="submit" class="btn btn-primary">Update</button>
             <button type="button" class="btn btn-dark" onclick="window.location.href = '/';">Back</button>
+            <?php if (isset($errorMessage)) echo $errorMessage; ?>
         </form>
     </div>
 </body>
