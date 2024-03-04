@@ -1,5 +1,6 @@
 <?php
 include 'functions/connect.php';
+include 'functions/search.php';
 ?>
 
 <!doctype html>
@@ -34,39 +35,59 @@ include 'functions/connect.php';
             </thead>
             <tbody>
                 <?php
-                $sql = "Select * from `books`";
+                if (isset($search_value)){
+                    $sql = "Select * from `books` where `title` like '%$search_value%' or `author` like '%$search_value%' or `book_id` = '$search_value'";
+                }
+                else{
+                    $sql = "Select * from `books`";
+                }
                 $result = mysqli_query($con, $sql);
                 if ($result) {
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        $id = $row['book_id'];
-                        $title = $row['title'];
-                        $author = $row['author'];
-                        $pages_read_number = $row['pages_read_number'];
-                        if (!$pages_read_number) {
-                            $pages_read_number = 0;
-                        }
-                        $number_of_pages = $row['number_of_pages'];
-                        $date_read = $row['date_read'];
-                        if (!$date_read) {
-                            $date_read = '-';
-                        }
-                        $rating = $row['rating'];
-                        if (!$rating) {
-                            $rating = '-';
-                        }
+                    $num_rows = mysqli_num_rows($result);
+                    if ($num_rows==0){
                         echo '<tr>
-                        <th scope="row">' . $id . '</th>
-                        <td>' . $title . '</td>
-                        <td>' . $author . '</td>
-                        <td>' . $pages_read_number . '</td>
-                        <td>' . $number_of_pages . '</td>
-                        <td>' . $date_read . '</td>
-                        <td>' . $rating . '</td>
-                        <td class="d-flex justify-content-center">
-                        <button class="btn btn-primary mx-1" onclick="window.location.href = \'pages/update.php?update_id=' . $id . '\';">Update</button>
-                        <button class="btn btn-danger mx-1" onclick="window.location.href = \'../functions/delete.php?delete_id=' . $id . '\';">Delete</button>
-                        </td>
-                    </tr>';
+                            <th scope="row">-</th>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>';
+                    }
+                    else{
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            $id = $row['book_id'];
+                            $title = $row['title'];
+                            $author = $row['author'];
+                            $pages_read_number = $row['pages_read_number'];
+                            if (!$pages_read_number) {
+                                $pages_read_number = 0;
+                            }
+                            $number_of_pages = $row['number_of_pages'];
+                            $date_read = $row['date_read'];
+                            if (!$date_read) {
+                                $date_read = '-';
+                            }
+                            $rating = $row['rating'];
+                            if (!$rating) {
+                                $rating = '-';
+                            }
+                            echo '<tr>
+                            <th scope="row">' . $id . '</th>
+                            <td>' . $title . '</td>
+                            <td>' . $author . '</td>
+                            <td>' . $pages_read_number . '</td>
+                            <td>' . $number_of_pages . '</td>
+                            <td>' . $date_read . '</td>
+                            <td>' . $rating . '</td>
+                            <td class="d-flex justify-content-center">
+                            <button class="btn btn-primary mx-1" onclick="window.location.href = \'pages/update.php?update_id=' . $id . '\';">Update</button>
+                            <button class="btn btn-danger mx-1" onclick="window.location.href = \'../functions/delete.php?delete_id=' . $id . '\';">Delete</button>
+                            </td>
+                        </tr>';
+                        }
                     }
                 }
                 ?>

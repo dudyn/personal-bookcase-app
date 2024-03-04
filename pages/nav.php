@@ -1,3 +1,7 @@
+<?php
+include 'functions/search.php';
+?>
+
 <!doctype html>
 <html lang="en">
 
@@ -23,7 +27,15 @@
         <?php
         $path = $_SERVER['REQUEST_URI'];
         if ($path == '/'){
-            echo '<button class="btn btn-outline-dark ml-auto mx-2" onclick="window.location.href = \'pages/add.php\';">Add new book</button>';
+            echo '
+            <div class="d-flex align-items-center justify-content-center">
+                <form method="post" class="d-flex my-auto">
+                <input type="text" name="search_input" class="form-control ml-auto mx-2 border-dark d-inline-flex w-auto bg-light" value="' . (isset($_POST['search_input']) ? $_POST['search_input'] : '') . '">
+                    <button type="submit" class="btn btn-outline-dark ml-auto">Search</button>
+                </form>
+                <button class="btn btn-outline-dark ml-auto mx-2" onclick="window.location.href = \'pages/add.php\';">Add new book</button>
+            </div>
+            ';
         }
         else{
             echo '<button class="btn btn-outline-dark ml-auto mx-2 invisible" onclick="window.location.href = \'pages/add.php\';">Add new book</button>';
